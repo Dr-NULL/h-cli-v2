@@ -1,3 +1,8 @@
+# Paquetes de JS
 node_modules
-.vscode
-dist
+dist/*
+
+# Archivos de configuración
+secret.txt
+*config.json
+!tsconfig.json
