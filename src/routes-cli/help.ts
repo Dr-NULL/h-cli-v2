@@ -112,10 +112,8 @@ help.callback = args => {
       cCyan,
       ' INFO! ',
       `Command ${cCode(cmd)}:`,
-      '----------------------------------------------',
       found.desc +'\n',
       'Details:',
-      '----------------------------------------------',
       found.info + '\n'
     )
   }

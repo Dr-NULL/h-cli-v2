@@ -12,6 +12,9 @@ export class Json<T> extends FileBase implements Readable<T>, Writable<T>  {
     try {
       const bin = await fs.readFile(this.path)
       const txt = bin.toString('utf-8')
+        .replace(/\/\*(.(?!\*\/))+.\*\//gi, '')   // Remove multiline comments
+        .replace(/\/{2}.+$/gim, '')               // Remove comments
+
       const obj = JSON.parse(txt)
       return obj as T
     } catch (err) {

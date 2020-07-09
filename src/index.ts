@@ -16,10 +16,10 @@ const failed = (err: any) => {
     Log.er(
         err.message + ' Type '
       + Chalk.bgGrey.white.bold('"h. help"')
-      + '\nfor get the available commands.\n'
+      + '\nfor get the available commands'
     )
   } else {
-    Log.er(err.message, '')
+    Log.er(err.message)
   }
 }
 
