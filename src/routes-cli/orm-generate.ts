@@ -82,7 +82,7 @@ ormGenerate.callback = async args => {
 
   // Compile *.ts files
   Log.ev('Compiling *.ts files...')
-  if (!await fdDist.exist) {
+  if (await fdDist.exist) {
     await fdDist.delete()
   }
   await tsc.execute()

@@ -57,7 +57,11 @@ export class Cmd {
       cmd.stdout.on('data', (chunk: Uint8Array) => {
         chunks.push(chunk)
       })
-  
+
+      cmd.stderr.on('data', (chunk: Uint8Array) => {
+        chunks.push(chunk)
+      })
+      
       cmd.on('close', (code: number) => {
         const data = Buffer.concat(chunks)
         const text = decode(data, this._encoding)

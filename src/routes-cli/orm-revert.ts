@@ -86,7 +86,6 @@ ormRevert.callback = async args => {
   
       // Delete Files
       if (purge) {
-        console.log('')
         Log.ev('Deleting migrations:')
         for (const path of desc) {
           Log.ln(`→ ${path.name}`)
