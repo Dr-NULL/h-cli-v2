@@ -1,5 +1,6 @@
 import { Route } from '../tool/arg';
-import { Log, Timer } from '../tool/log';
+import { paint } from '../tool/other/paint';
+import { Log } from '../tool/log';
 
 export const test = new Route()
 test.main = [
@@ -7,7 +8,19 @@ test.main = [
 ]
 test.desc = 'Command for testing purposes.'
 test.callback = async args => {
-  Timer.start('default', '')
-  Log.ev('AjajjajAJ')
-  Timer.stop('default', '')
+  const ref = [
+    16516,
+    513513,
+    151351,
+    {
+      text: 'joder',
+      value: 165135
+    },
+    {
+      text: 'Nya!',
+      value: 555
+    }
+  ]
+
+ Log.ln(paint(ref))
 }
