@@ -42,9 +42,12 @@ ormExecute.callback = async args => {
     'migration:run',
   )
 
+  Log.ev('Compiling *.ts files...')
   if (await fdDist.exist) {
     await fdDist.delete()
   }
+  await tsc.execute()
+
   Log.ev('Excuting migrations')
   await exe.execute()
 }
