@@ -9,7 +9,7 @@ import { ormGenerate } from './routes-cli/orm-generate';
 
 export const routes: Route[] = [
   help,
-  test,
+  // test,
   ormRevert,
   ormExecute,
   ormGenerate

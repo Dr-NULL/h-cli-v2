@@ -53,17 +53,18 @@ export class Cmd {
         }
       )
       
-      let chunks: Uint8Array[] = []
+      let chunkOk: Uint8Array[] = []
       cmd.stdout.on('data', (chunk: Uint8Array) => {
-        chunks.push(chunk)
+        chunkOk.push(chunk)
       })
 
+      let chunkError: Uint8Array[] = []
       cmd.stderr.on('data', (chunk: Uint8Array) => {
-        chunks.push(chunk)
+        chunkError.push(chunk)
       })
       
       cmd.on('close', (code: number) => {
-        const data = Buffer.concat(chunks)
+        const data = Buffer.concat(chunkError)
         const text = decode(data, this._encoding)
 
         cmd.kill()
