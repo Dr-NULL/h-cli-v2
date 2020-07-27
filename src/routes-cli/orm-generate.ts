@@ -100,7 +100,7 @@ ormGenerate.callback = async args => {
     }
     await tsc.execute()
 
-    Log.ev('Excuting migrations')
+    Log.ev('Executing migrations')
     await exe.execute()
   }
 }
