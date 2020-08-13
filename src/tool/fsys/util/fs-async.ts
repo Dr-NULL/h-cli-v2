@@ -31,7 +31,7 @@ export function stat(path: string) {
 
 export function rmdir(path: string) {
   return new Promise<void>((resolve, reject) => {
-    fs.rmdir(path, (err) => {
+    fs.rmdir(path, { recursive: true }, (err) => {
       if (err) {
         reject(err)
       } else {

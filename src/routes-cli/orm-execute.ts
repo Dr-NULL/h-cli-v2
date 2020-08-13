@@ -27,27 +27,33 @@ ormExecute.callback = async args => {
   // Check folders
   const dataOrm = await ormConf.get()
   const dataTs = await tsConf.get()
-  const fdMigr = new Folder('.', dataOrm.cli.migrationsDir)
-  const fdDist = new Folder('.', dataTs.compilerOptions.outDir)
-  if (!await fdMigr.exist) {
-    throw new Error('The Migration Folder doesn\'t exist, aborting...')
-  } else if ((await fdMigr.children).length === 0) {
-    throw new Error('The Migration Folder is empty, aborting...')
+  for (const jsonItem of dataOrm) {
+    if (!jsonItem.cli) {
+      continue
+    }
+
+    const fdMigr = new Folder('.', jsonItem.cli.migrationsDir)
+    const fdDist = new Folder('.', dataTs.compilerOptions.outDir)
+    if (!await fdMigr.exist) {
+      throw new Error('The Migration Folder doesn\'t exist, aborting...')
+    } else if ((await fdMigr.children).length === 0) {
+      throw new Error('The Migration Folder is empty, aborting...')
+    }
+  
+    // Execute commands
+    const tsc = new Cmd('tsc')
+    const exe = new Cmd(
+      'npx', 'typeorm',
+      'migration:run',
+    )
+  
+    Log.ev('Compiling *.ts files...')
+    if (await fdDist.exist) {
+      await fdDist.delete()
+    }
+    await tsc.execute()
+  
+    Log.ev('Excuting migrations')
+    await exe.execute()
   }
-
-  // Execute commands
-  const tsc = new Cmd('tsc')
-  const exe = new Cmd(
-    'npx', 'typeorm',
-    'migration:run',
-  )
-
-  Log.ev('Compiling *.ts files...')
-  if (await fdDist.exist) {
-    await fdDist.delete()
-  }
-  await tsc.execute()
-
-  Log.ev('Excuting migrations')
-  await exe.execute()
 }

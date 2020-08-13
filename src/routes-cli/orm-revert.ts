@@ -41,76 +41,82 @@ ormRevert.callback = async args => {
   // Get Paths
   const jsonOrm = await ormConf.get()
   const jsonTs = await tsConf.get()
-  const fdMigr = new Folder('.', jsonOrm.cli.migrationsDir)
-  const fdDist = new Folder('.', jsonTs.compilerOptions.outDir)
+  for (const jsonItem of jsonOrm) {
+    if (!jsonItem.cli) {
+      continue
+    }
 
-  // check Folders
-  if (!await fdMigr.exist) {
-    throw new Error(`The Location "${fdMigr.path}" doesn\'t exists, aborting...`)
-  }
-  if ((await fdMigr.children).length === 0) {
-    throw new Error(`The migrations folder is empty, aborting...`)
-  }
-
-  // Show info
-  const all = args.paramBool('all', 'a')
-  const purge = args.paramBool('purge', 'pg', 'p')
-  Log.ev(
-    'Revert migrations:',
-    `${cParam('--all  ')} → ${cBool(all)}`,
-    `${cParam('--purge')} → ${cBool(purge)}\n`
-  )
-
-  // Set Commands
-  const tsc = new Cmd('tsc')
-  const rev = new Cmd('npx', 'typeorm', 'migration:revert')
+    const fdMigr = new Folder('.', jsonItem.cli.migrationsDir)
+    const fdDist = new Folder('.', jsonTs.compilerOptions.outDir)
   
-  // Compile typescript files
-  Log.ev('Compiling *.ts files...')
-  if (await fdDist.exist) {
-    await fdDist.delete()
-  }
-  await tsc.execute()
-
-  // Revert
-  try {
-
-    const desc = await fdMigr.children
-    if (all) {
-      // Execute command
-      Log.ev('Reverting migrations:')
-      for (const path of desc) {
-        Log.ln(`→ ${path.name}`)
-        await rev.execute()
-      }
+    // check Folders
+    if (!await fdMigr.exist) {
+      throw new Error(`The Location "${fdMigr.path}" doesn\'t exists, aborting...`)
+    }
+    if ((await fdMigr.children).length === 0) {
+      throw new Error(`The migrations folder is empty, aborting...`)
+    }
   
-      // Delete Files
-      if (purge) {
-        Log.ev('Deleting migrations:')
+    // Show info
+    const all = args.paramBool('all', 'a')
+    const purge = args.paramBool('purge', 'pg', 'p')
+    Log.ev(
+      'Revert migrations:',
+      `${cParam('--all  ')} → ${cBool(all)}`,
+      `${cParam('--purge')} → ${cBool(purge)}\n`
+    )
+  
+    // Set Commands
+    const tsc = new Cmd('tsc')
+    const rev = new Cmd('npx', 'typeorm', 'migration:revert')
+    
+    // Compile typescript files
+    Log.ev('Compiling *.ts files...')
+    if (await fdDist.exist) {
+      await fdDist.delete()
+    }
+    await tsc.execute()
+  
+    // Revert
+    try {
+  
+      const desc = await fdMigr.children
+      if (all) {
+        // Execute command
+        Log.ev('Reverting migrations:')
         for (const path of desc) {
           Log.ln(`→ ${path.name}`)
-          await path.delete()
+          await rev.execute()
         }
-      }
-    } else {
-      // Execute command
-      const one = desc.pop()
-      Log.ev(
-        'Reverting migration:',
-        `→ ${one.name}`
-      )
-      await rev.execute()
-  
-      // Delete File
-      if (purge) {
+    
+        // Delete Files
+        if (purge) {
+          Log.ev('Deleting migrations:')
+          for (const path of desc) {
+            Log.ln(`→ ${path.name}`)
+            await path.delete()
+          }
+        }
+      } else {
+        // Execute command
+        const one = desc.pop()
         Log.ev(
-          'Deleting migration:',
+          'Reverting migration:',
           `→ ${one.name}`
         )
-        await one.delete()
+        await rev.execute()
+    
+        // Delete File
+        if (purge) {
+          Log.ev(
+            'Deleting migration:',
+            `→ ${one.name}`
+          )
+          await one.delete()
+        }
       }
+    } catch (err) {
+      console.log(err)
     }
-  } catch (err) {
-    console.log(err)
   }
 }

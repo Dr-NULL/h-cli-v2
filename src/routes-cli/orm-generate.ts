@@ -41,66 +41,72 @@ ormGenerate.callback = async args => {
   // Get Folders
   const tsData = await tsConf.get()
   const ormData = await ormConf.get()
-  const fdDist = new Folder('.', tsData.compilerOptions.outDir)
-  const fdMdls = new Folder('.', ormData.cli.entitiesDir)
-  if (!await fdMdls.exist) {
-    throw new Error('The entities folder doesn\'t exists, aborting...')
-  }
-  if ((await fdMdls.children).length === 0) {
-    throw new Error('The entities folder is empty, aborting...')
-  }
+  for (const jsonItem of ormData) {    
+    if (!jsonItem.cli) {
+      continue
+    }
 
-  // Get the name of parameter
-  const exec = args.paramBool('exec', 'ex', 'e')
-  let name = args
-    .paramValues('name', 'nm', 'n')
-    .reduce((prev, curr) => 
-      `${prev}-${curr}`
-    , '')
-    .replace(/(\s|-)+/gi, '-')
-    .replace(/(^-+|-+$)/gi, '')
-    .replace(/^$/gi, 'NO-NAME')
+    const fdDist = new Folder('.', tsData.compilerOptions.outDir)
+    const fdMdls = new Folder('.', jsonItem.cli.entitiesDir)
+    if (!await fdMdls.exist) {
+      throw new Error('The entities folder doesn\'t exists, aborting...')
+    }
+    if ((await fdMdls.children).length === 0) {
+      throw new Error('The entities folder is empty, aborting...')
+    }
+
+    // Get the name of parameter
+    const exec = args.paramBool('exec', 'ex', 'e')
+    let name = args
+      .paramValues('name', 'nm', 'n')
+      .reduce((prev, curr) => 
+        `${prev}-${curr}`
+      , '')
+      .replace(/(\s|-)+/gi, '-')
+      .replace(/(^-+|-+$)/gi, '')
+      .replace(/^$/gi, 'NO-NAME')
+      
+    // Show console info
+    Log.ev(
+      'Generate migrations:',
+      `${cParam('--name')} → ${cString(name)}`,
+      `${cParam('--exec')} → ${cBool(exec)}\n`
+    )
     
-  // Show console info
-  Log.ev(
-    'Generate migrations:',
-    `${cParam('--name')} → ${cString(name)}`,
-    `${cParam('--exec')} → ${cBool(exec)}\n`
-  )
-  
-  // Commands
-  const tsc = new Cmd('tsc')
-  const gen = new Cmd(
-    'npx', 'typeorm',
-    'migration:generate',
-    '-n', name
-  )
-  const exe = new Cmd(
-    'npx', 'typeorm',
-    'migration:run',
-  )
+    // Commands
+    const tsc = new Cmd('tsc')
+    const gen = new Cmd(
+      'npx', 'typeorm',
+      'migration:generate',
+      '-n', name
+    )
+    const exe = new Cmd(
+      'npx', 'typeorm',
+      'migration:run',
+    )
 
-  // Compile *.ts files
-  Log.ev('Compiling *.ts files...')
-  if (await fdDist.exist) {
-    await fdDist.delete()
-  }
-  await tsc.execute()
-
-  // Generate Migration
-  Log.ev('Generating migration...')
-  await gen.execute()
-  Log.ok('Migration complete!')
-
-  // Execute Migration
-  if (exec) {
+    // Compile *.ts files
     Log.ev('Compiling *.ts files...')
     if (await fdDist.exist) {
       await fdDist.delete()
     }
     await tsc.execute()
 
-    Log.ev('Executing migrations')
-    await exe.execute()
+    // Generate Migration
+    Log.ev('Generating migration...')
+    await gen.execute()
+    Log.ok('Migration complete!')
+
+    // Execute Migration
+    if (exec) {
+      Log.ev('Compiling *.ts files...')
+      if (await fdDist.exist) {
+        await fdDist.delete()
+      }
+      await tsc.execute()
+
+      Log.ev('Executing migrations')
+      await exe.execute()
+    }
   }
 }
