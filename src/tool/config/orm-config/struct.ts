@@ -9,8 +9,8 @@ export interface Struct {
   syncronize: boolean;
   logging: boolean;
   entities: string[];
-  migrations: string[];
-  cli: {
+  migrations?: string[];
+  cli?: {
     entitiesDir: string;
     migrationsDir: string;
     subscribersDir: string;
